@@ -22,7 +22,7 @@ quasiRelTest = [relativeRef|/foo?bar=baz#quux|]
 tests :: TestTree
 tests = testGroup "URI.ByteString.QQ"
   [ testCase "uri quasi quoter produces expected RelativeRef" $ do
-      quasiTest @?= URI (Scheme "https") (Just (Authority Nothing (Host "stackage.org") Nothing)) "/foo" (Query [("bar", "baz")]) (Just "quux")
+      quasiTest @?= URI (Scheme "https") (Just (Authority Nothing (Host "stackage.org") Nothing)) "/foo" (Query [("bar", Just "baz")]) (Just "quux")
   , testCase "relativeRef quasi quoter produces expected RelativeRef" $ do
-      quasiRelTest @?= RelativeRef Nothing "/foo" (Query [("bar", "baz")]) (Just "quux")
+      quasiRelTest @?= RelativeRef Nothing "/foo" (Query [("bar", Just "baz")]) (Just "quux")
   ]

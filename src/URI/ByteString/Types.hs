@@ -89,7 +89,7 @@ deriving instance Lift Authority
 #endif
 
 -------------------------------------------------------------------------------
-newtype Query = Query { queryPairs :: [(ByteString, ByteString)] }
+newtype Query = Query { queryPairs :: [(ByteString, Maybe ByteString)] }
               deriving (Show, Eq, Semigroup.Semigroup, Monoid, Generic, Typeable, Ord)
 
 #ifdef LIFT_COMPAT

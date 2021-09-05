@@ -262,7 +262,8 @@ serializeQuery _ (Query []) = mempty
 serializeQuery URINormalizationOptions {..} (Query ps) =
     c8 '?' <> mconcat (intersperse (c8 '&') (map serializePair ps'))
   where
-    serializePair (k, v) = urlEncodeQuery k <> c8 '=' <> urlEncodeQuery v
+    serializePair (k, Just v ) = urlEncodeQuery k <> c8 '=' <> urlEncodeQuery v
+    serializePair (k, Nothing) = urlEncodeQuery k
     ps'
       | unoSortParameters = sortBy (comparing fst) ps
       | otherwise = ps
@@ -624,15 +625,15 @@ queryParser opts = do
 -- | When parsing a single query item string like "foo=bar", turns it
 -- into a key/value pair as per convention, with the value being
 -- optional. & separators need to be handled further up.
-queryItemParser :: URIParserOptions -> URIParser (ByteString, ByteString)
+queryItemParser :: URIParserOptions -> URIParser (ByteString, Maybe ByteString)
 queryItemParser opts = do
   s <- A.takeWhile (upoValidQueryChar opts) `orFailWith` MalformedQuery
   if BS.null s
-     then return (mempty, mempty)
+     then return (mempty, Nothing)
      else do
        let (k, vWithEquals) = BS.break (== equals) s
        let v = BS.drop 1 vWithEquals
-       return (urlDecodeQuery k, urlDecodeQuery v)
+       return (urlDecodeQuery k, urlDecodeQuery v <$ guard (not $ BS.null vWithEquals))
 
 
 -------------------------------------------------------------------------------

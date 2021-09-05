@@ -79,7 +79,7 @@ uiPasswordL =
 
 -------------------------------------------------------------------------------
 queryPairsL
-  :: Lens' Query [(ByteString, ByteString)]
+  :: Lens' Query [(ByteString, Maybe ByteString)]
 queryPairsL =
   lens queryPairs (\a b -> a { queryPairs = b})
 {-# INLINE queryPairsL #-}

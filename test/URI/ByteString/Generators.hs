@@ -87,7 +87,7 @@ genScheme = Scheme <$> genAlphaNumBS
 
 genQuery :: Gen Query
 genQuery = do
-  pairs <- Gen.list (Range.linear 0 10) ((,) <$> genAlphaNumBS <*> genAlphaNumBS)
+  pairs <- Gen.list (Range.linear 0 10) ((,) <$> genAlphaNumBS <*> Gen.maybe genAlphaNumBS)
   pure $ Query
     { queryPairs = pairs
     }

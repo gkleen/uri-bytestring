@@ -74,27 +74,27 @@ parseUriTests = testGroup "parseUri"
       URI (Scheme "https")
           (Just (Authority (Just (UserInfo "user" "pass:wo rd")) (Host "www.example.org") Nothing))
           ""
-          (Query [("foo", "bar"), ("foo", "baz quux")])
+          (Query [("foo", Just "bar"), ("foo", Just "baz quux")])
           (Just "frag")
   -- trailing &
   , testParses "http://www.example.org?foo=bar&" $
       URI (Scheme "http")
           (Just (Authority Nothing (Host "www.example.org") Nothing))
           ""
-          (Query [("foo", "bar")])
+          (Query [("foo", Just "bar")])
           Nothing
   , testParses "http://www.google.com:80/aclk?sa=l&ai=CChPOVvnoU8fMDI_QsQeE4oGwDf664-EF7sq01HqV1MMFCAAQAigDUO3VhpcDYMnGqYvApNgPoAGq3vbiA8gBAaoEKE_QQwekDUoMeW9IQghV4HRuzL_l-7vVjlML559kix6XOcC1c4Tb9xeAB76hiR2QBwGoB6a-Gw&sig=AOD64_3Ulyu0DcDsc1AamOIxq63RF9u4zQ&rct=j&q=&ved=0CCUQ0Qw&adurl=http://www.aruba.com/where-to-stay/hotels-and-resorts%3Ftid%3D122"
       URI { uriScheme = Scheme {schemeBS = "http"}
           , uriAuthority = Just Authority {authorityUserInfo = Nothing, authorityHost = Host {hostBS = "www.google.com"}, authorityPort = Just (Port 80)}
           , uriPath = "/aclk"
           , uriQuery = Query {queryPairs =
-              [("sa", "l")
-              ,("ai", "CChPOVvnoU8fMDI_QsQeE4oGwDf664-EF7sq01HqV1MMFCAAQAigDUO3VhpcDYMnGqYvApNgPoAGq3vbiA8gBAaoEKE_QQwekDUoMeW9IQghV4HRuzL_l-7vVjlML559kix6XOcC1c4Tb9xeAB76hiR2QBwGoB6a-Gw")
-              ,("sig", "AOD64_3Ulyu0DcDsc1AamOIxq63RF9u4zQ")
-              ,("rct", "j")
-              ,("q", "")
-              ,("ved", "0CCUQ0Qw")
-              ,("adurl", "http://www.aruba.com/where-to-stay/hotels-and-resorts?tid=122")
+              [("sa", Just "l")
+              ,("ai", Just "CChPOVvnoU8fMDI_QsQeE4oGwDf664-EF7sq01HqV1MMFCAAQAigDUO3VhpcDYMnGqYvApNgPoAGq3vbiA8gBAaoEKE_QQwekDUoMeW9IQghV4HRuzL_l-7vVjlML559kix6XOcC1c4Tb9xeAB76hiR2QBwGoB6a-Gw")
+              ,("sig", Just "AOD64_3Ulyu0DcDsc1AamOIxq63RF9u4zQ")
+              ,("rct", Just "j")
+              ,("q", Just "")
+              ,("ved", Just "0CCUQ0Qw")
+              ,("adurl", Just "http://www.aruba.com/where-to-stay/hotels-and-resorts?tid=122")
               ]}
           , uriFragment = Nothing
           }
@@ -118,14 +118,14 @@ parseUriTests = testGroup "parseUri"
           URI (Scheme "https")
           (Just (Authority Nothing (Host "www.example.org") Nothing))
           ""
-          (Query [("listParam[]", "foo,bar")])
+          (Query [("listParam[]", Just "foo,bar")])
           Nothing
 
   , testParses "https://www.example.org?listParam%5B%5D=foo,bar" $
       URI (Scheme "https")
           (Just (Authority Nothing (Host "www.example.org") Nothing))
           ""
-          (Query [("listParam[]", "foo,bar")])
+          (Query [("listParam[]", Just "foo,bar")])
           Nothing
 
   , testParses "https://www.example.org#only-fragment" $
@@ -162,6 +162,8 @@ parseUriTests = testGroup "parseUri"
   , roundtripTestURI strictURIParserOptions "news:comp.infosystems.www.servers.unix"
   , roundtripTestURI strictURIParserOptions "tel:+1-816-555-1212"
   , roundtripTestURI strictURIParserOptions "telnet://192.0.2.16:80/"
+  , roundtripTestURI strictURIParserOptions "http://blog.fefe.de/rss?html"
+  , roundtripTestURI strictURIParserOptions "http://blog.fefe.de/rss?html="
 
   -- RFC 3986, Section 4.2
   , parseTestRelativeRef strictURIParserOptions "verysimple" $
@@ -176,7 +178,7 @@ parseUriTests = testGroup "parseUri"
       Right $ RelativeRef
           Nothing
           "./this:that/thap/sub"
-          (Query [("1", "2")])
+          (Query [("1", Just "2")])
           Nothing
   ]
 
@@ -372,7 +374,7 @@ serializeURITests = testGroup "serializeURIRef"
        let uri = URI (Scheme "http")
                  (Just (Authority (Just ui) (Host "www.example.org") (Just port)))
                  "/"
-                 (Query [("foo", "bar")])
+                 (Query [("foo", Just "bar")])
                  (Just "somefragment")
        let res = BB.toLazyByteString (serializeURIRef uri)
        res @?= "http://user:pass@www.example.org:123/?foo=bar#somefragment"
@@ -388,7 +390,7 @@ serializeURITests = testGroup "serializeURIRef"
       let ui = UserInfo "user" "pass"
       let uri = RelativeRef (Just (Authority (Just ui) (Host "www.example.org") (Just port)))
                 "/"
-                (Query [("foo", "bar")])
+                (Query [("foo", Just "bar")])
                 (Just "somefragment")
       let res = BB.toLazyByteString (serializeURIRef uri)
       res @?= "//user:pass@www.example.org:123/?foo=bar#somefragment"
